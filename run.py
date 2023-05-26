@@ -56,6 +56,11 @@ def validate_guess():
         print("You've already guessed that letter!")
     else:
         valid_guess = True
+        guessed_letters.append(guess)
+        print("Guessed letters:")
+        print(' '.join(guessed_letters))
+    
+    return guess
 
 def update_letters():
     """
@@ -65,20 +70,29 @@ def update_letters():
     """
     global correct_letters
     global incorrect_letters
+    global word
+    global lives
 
-    letter = validate_guess()
-    for i in word
-    if letter in word_letters:
-        correct_letters.append(letter)
+    word = generate_random_word()
+    guess = validate_guess()
+
+    if guess in word:
+        correct_letters.append(guess)
     else:
         lives -= 1
 
+"""
 def update_guessed_letters():
     global guessed_letters
-    if letter in word_letters:
-        guessed_letters.append(letter)
-    print("Guessed letters:")
-    print(guessed_letters)
+
+    guess = validate_guess()
+
+    if guess in word:
+        guessed_letters.append(guess)
+        print("Guessed letters:")
+        print(' '.join(guessed_letters))
+"""
+
 
 def run_game():
     while win is False and lives != 0:
@@ -86,7 +100,7 @@ def run_game():
         generate_random_word()
         validate_guess()
         update_letters()
-        update_guessed_letters()
+        #update_guessed_letters()
 
 run_game()
 
