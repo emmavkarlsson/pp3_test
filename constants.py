@@ -1,4 +1,6 @@
-words = [
+ALPHABET = "abcdefghijklmnopqrstuvwxyz"
+
+WORDS = [
 "calendar",
 "notepad",
 "amused",

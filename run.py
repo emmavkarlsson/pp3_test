@@ -1,121 +1,141 @@
 import random
 import os
 
-from assets.words import words
-from assets.hangman import hangman
+import constants
+import hangman
 
-print("Welcome to hangman! You've got 6 chances to")
-print("guess the right word and to save the hangman!")
 
-word = ""
-lives = 6
-correct_letters = []
-incorrect_letters = []
-guessed_letters = []
-win = False
+def title_of_game():
+    """
+    Adds a title to the game
+    """
+    print("Welcome to hangman! You've got 6 chances to")
+    print("guess the right word and to save the hangman!")
 
-def generate_random_word():
+
+def generate_random_word(words):
     """
     Generates a random word for the user to guess and
     displays underlines. The number of letters in the
     generated word will determine how many underlines are
     displayed
     """
-    global word
-    word = random.choice(words)
-    word = word.upper()
-
-    for i in word:
-        print("_", end=" ")
-
+    word = random.choice(constants.WORDS)
     return word
 
-
-def display_hangman():
-    if(lives == 6):
-        print(hangman[0])
-    elif(lives == 5):
-        print(hangman[1])
-    elif(lives == 4):
-        print(hangman[2])
-    elif(lives == 3):
-        print(hangman[3])
-    elif(lives == 2):
-        print(hangman[4])
-    elif(lives == 1):
-        print(hangman[5])
-    elif(lives == 0):
-        print(hangman[6])
-
-def validate_guess():
-    valid_guess = False
-    guess = input('\n Guess a letter:')
-    if len(guess) > 1:
-        print("You can only enter 1 letter at a time!")
-    elif guess in correct_letters or guess in incorrect_letters:
-        print("You've already guessed that letter!")
-    else:
-        valid_guess = True
-        guessed_letters.append(guess)
-        print("Guessed letters:")
-        print(' '.join(guessed_letters))
-    
-    return guess
-
-def update_letters():
+def display_word(word, guessed_letters):
     """
-    Will update 'guessed letters' with the guessed letter,
-    and add the letter to the word if the guessed letter
-    is in the generated word
+    Prints the words as underscores
     """
-    global correct_letters
-    global incorrect_letters
-    global word
-    global lives
+    value = ""
 
-    word = generate_random_word()
-    guess = validate_guess()
+    for i in range(len(word)):
+        if word[i] in guessed_letters:
+            value += word[i] + " "
+        else: 
+            value += "_ "
+    print(value)
 
-    if guess in word:
-        correct_letters.append(guess)
-    else:
-        lives -= 1
+def display_hangman(lives_left):
+    """
+    Displays the hangman graphics
+    """
+    current_graphic = len(hangman.HANGMAN) - lives_left - 1
+    print(hangman.HANGMAN[current_graphic])
 
-"""
-def update_guessed_letters():
-    global guessed_letters
 
-    guess = validate_guess()
+def display_lives(lives):
+    """
+    Displays how many lives the user has left
+    """
+    print("")
+    print(f"You have {lives} lives left!")
 
-    if guess in word:
-        guessed_letters.append(guess)
-        print("Guessed letters:")
-        print(' '.join(guessed_letters))
-"""
+
+def display_guessed_letters(letters):
+    """
+    Displays the letters the user has already guessed
+    """
+    value = ""
+    for i in letters:
+        value += i + " "
+
+    print(f"Letters guessed: {value}")
+
+
+def get_and_validate_guess(excluded_letters):
+    while True:
+        print("")
+        guess = input('Guess a letter: ').lower()
+
+        if len(guess) > 1:
+            print("You can only enter 1 letter at a time!")
+        elif len(guess) < 1:
+            print("You have to enter a letter!")
+        elif guess not in constants.ALPHABET:
+            print("Please enter a valid letter!")
+        elif guess in excluded_letters:
+            print(f"You've already guessed {guess}!")
+        else:
+            return guess
+
+def check_guess(word, letter):
+    """
+    Checks how many times the guessed letter
+    appears in the word
+    """
+    count_letter = word.count(letter)
+    return count_letter
 
 
 def run_game():
-    while win is False and lives != 0:
-        display_hangman()
-        generate_random_word()
-        validate_guess()
-        update_letters()
-        #update_guessed_letters()
+    guessed_letters = []
+    lives_left = 6
+    correct_answers = 0
 
-run_game()
+    game_word = generate_random_word(constants.WORDS)
 
-#def check_letter():
- #   for i in range(len(word)):
-  #      if guess == word[i]:
-   #         print[i] = guess
+    while True:
+        print("\033[H\033[2J", end="")
+        title_of_game()
+        display_hangman(lives_left)
+        display_word(game_word, guessed_letters)
+        display_lives(lives_left)
+        display_guessed_letters(guessed_letters)
 
-"""
-generate_random_word()
-display_hangman()
-display_word()
-validate_guess()
-#check_letter()
-"""
+        if lives_left == 0:
+            print(f"You lost! the word was '{game_word}'")
+            return
+        if correct_answers == len(game_word):
+            print("You won!")
+            return
+
+        guess = get_and_validate_guess(guessed_letters)
+        guessed_letters.append(guess)
+
+        correct_guess = check_guess(game_word, guess)
+        if correct_guess == 0:
+            lives_left -= 1
+        else: 
+            correct_answers += correct_guess
+
+
+def play_again():
+    """
+    Gives the user the option to play again after they have won
+    or lost. Accepts y and anything that starts with y as "yes".
+    """
+    return input("Do you want to play again? (y/n): ").lower().startswith("y")
+
+
+if __name__ == '__main__':
+    while True:
+        run_game()
+
+        if not play_again():
+            break
+
+
 
 
 
